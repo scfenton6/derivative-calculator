@@ -1,3 +1,4 @@
+import os
 from derivative_calculator.tokenizer import Token, Tokenizer, VAR
 from derivative_calculator.math_parser import Var, Parser
 from derivative_calculator.symb_diff_tool import deriv
@@ -43,6 +44,7 @@ def main():
 
     restart = input("Would you like to restart this program? (y/n): ")
     if restart == "y":
+        os.system('cls||clear')
         main()
     if restart == "n":
         print("Good bye.")
