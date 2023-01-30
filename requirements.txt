@@ -21,5 +21,6 @@ pytest==7.2.1
 pytest-cov==4.0.0
 tomli==2.0.1
 tox==4.4.2
+typing==3.7.4.3
 typing_extensions==4.4.0
 virtualenv==20.17.1
