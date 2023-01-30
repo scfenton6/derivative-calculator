@@ -41,6 +41,12 @@ def main():
 
     print('Derivative: ', deriv_output)
 
+    restart = input("Would you like to restart this program? (y/n): ")
+    if restart == "y":
+        main()
+    if restart == "n":
+        print("Good bye.")
+
 
 if __name__ == '__main__':
     main()
