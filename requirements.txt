@@ -3,8 +3,6 @@ cachetools==5.3.0
 chardet==5.1.0
 colorama==0.4.6
 coverage==7.1.0
-# Editable Git install with no remote (derivative-calculator==0.0.0)
--e /home/yago/derivative-calculator
 distlib==0.3.6
 exceptiongroup==1.1.0
 filelock==3.9.0
