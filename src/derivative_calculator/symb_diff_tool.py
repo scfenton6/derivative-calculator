@@ -9,12 +9,15 @@ Derivative rules: https://en.wikipedia.org/wiki/Differentiation_rules
 Chain rule: https://en.wikipedia.org/wiki/Chain_rule
 '''
 
-from derivative_calculator.math_parser import Num, UnaryOp, BinOp
+import typing
+from derivative_calculator.math_parser import Num, Var, UnaryOp, BinOp
 from derivative_calculator.tokenizer import Token, INTEGER, MINUS
 import derivative_calculator.utils as utils
 
+Node = typing.Union[UnaryOp, BinOp, Num, Var]
 
-def deriv(node, var):
+
+def deriv(node: Node, var: Var) -> Node:
     if utils.is_number(node):
         return Num(Token(INTEGER, 0))
 
@@ -25,8 +28,8 @@ def deriv(node, var):
 
     if isinstance(node, UnaryOp):
         if utils.is_prefix_sign(node):
-            simpl_node = utils.simplifyPrefixSign(node)
-            if utils.is_number(simpl_node):
+            simpl_node: UnaryOp | Num = utils.simplifyPrefixSign(node)
+            if isinstance(simpl_node, Num):
                 return Num(Token(INTEGER, 0))
             return UnaryOp(simpl_node.token, deriv(simpl_node.expr, var))
 
@@ -165,7 +168,8 @@ def deriv(node, var):
             )
 
         if utils.is_pow(node):
-            base, exponent = node.left, node.right
+            base: Node = node.left
+            exponent: Node = node.right
             if (utils.is_number(exponent) or
                     (utils.is_var(exponent) and not utils.same_var(exponent, var))):
 
