@@ -23,6 +23,6 @@ To give the parser a use, I decided to write code for a tool that would use the 
 
 ## How to use
 
-To use the derivative calculator, simply run the interface.py file and enter a string containing a mathematical function, as well as a single character string containing the variable that you want to derivate respect to.
+To use the derivative calculator, simply run the interface.py file and enter a string containing a mathematical function, as well as a single character string containing the variable that you want to derivate respect to. After pressing enter, the program will output the derivative of the inputted function.
 
-![Alt Text](https://media2.giphy.com/media/kGxhSqcuIwrtHdFM2V/giphy.gif?cid=790b76112ebb1f53dc19651ce7db41a710e436f4aecf9922&rid=giphy.gif&ct=g)
+![Alt Text](https://media2.giphy.com/media/91R0PMpB1X0kP2VBwf/giphy.gif?cid=790b7611f817a0bcf269b594fb1a937519db11ef889d6062&rid=giphy.gif&ct=g)
