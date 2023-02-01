@@ -171,10 +171,9 @@ def deriv(node: Node, var: Var) -> Node:
         if utils.is_pow(node):
             base: Node = node.left
             exponent: Node = node.right
-            if (utils.is_number(exponent) or
-                    (utils.is_var(exponent) and not utils.same_var(exponent, var))):
-
-                return utils.make_prod(
+    
+            return utils.make_sum(
+                utils.make_prod(
                         utils.make_prod(
                             exponent,
                             utils.make_power(
@@ -186,10 +185,8 @@ def deriv(node: Node, var: Var) -> Node:
                             )
                         ),
                         deriv(base, var)
-                )
-            if (utils.is_number(base) or
-                    (utils.is_var(base) and not utils.same_var(base, var))):
-                return utils.make_prod(
+                    ),
+                utils.make_prod(
                         utils.make_prod(
                             node,
                             utils.make_func(
@@ -199,5 +196,6 @@ def deriv(node: Node, var: Var) -> Node:
                         ),
                         deriv(exponent, var)
                     )
+                )
 
     raise Exception('Could not find any tokens matching input')
