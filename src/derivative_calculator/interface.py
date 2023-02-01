@@ -6,6 +6,7 @@ from derivative_calculator.interpreter import Interpreter
 
 
 def main():
+
     print()
     print('    -------------------------    ')
     print('    - Derivative calculator -    ')
@@ -15,6 +16,7 @@ def main():
     print(' - Powers are represented by a double asterisk (**).')
     print(' - Valid variable inputs are single alphabet letters.')
     print()
+
     while True:
         try:
             expr = input('Enter mathematical function: ')
