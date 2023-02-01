@@ -63,7 +63,7 @@ def is_pow(node: Node) -> bool:
     return isinstance(node, BinOp) and node.op.type == POW
 
 
-def is_rational_number(node: Node) -> bool:
+def is_rational_number(node: BinOp) -> bool:
     return is_div(node) and (is_number(node.left) and is_number(node.right))
 
 

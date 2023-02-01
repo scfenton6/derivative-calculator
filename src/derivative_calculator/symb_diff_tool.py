@@ -171,7 +171,7 @@ def deriv(node: Node, var: Var) -> Node:
         if utils.is_pow(node):
             base: Node = node.left
             exponent: Node = node.right
-    
+
             return utils.make_sum(
                 utils.make_prod(
                         utils.make_prod(

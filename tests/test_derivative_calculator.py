@@ -1,9 +1,19 @@
 import pytest
 import typing
-from derivative_calculator.tokenizer import Token, Tokenizer, VAR, INTEGER, PLUS, MUL, DIV, POW, FUNC
 from derivative_calculator.math_parser import Var, Num, BinOp, UnaryOp, Parser
 from derivative_calculator.interpreter import Interpreter
 from derivative_calculator.symb_diff_tool import deriv
+from derivative_calculator.tokenizer import (
+    Token,
+    Tokenizer,
+    INTEGER,
+    VAR,
+    PLUS,
+    MUL,
+    DIV,
+    POW,
+    FUNC,
+)
 
 Node = typing.Union[UnaryOp, BinOp, Num, Var]
 
@@ -42,15 +52,15 @@ def compare_ast(node_1: Node, node_2: Node) -> bool:  # type: ignore[return]
     '''
     if not (node_1 or node_2):
         return True
-    
+
     if (node_1 and not node_2) or (not node_1 and node_2):
         return False
-    
+
     if type(node_1) is not type(node_2):
         return False
 
     if ((isinstance(node_1, Num) and isinstance(node_2, Num)) or
-        (isinstance(node_1, Var) and isinstance(node_2, Var))):
+            (isinstance(node_1, Var) and isinstance(node_2, Var))):
         if node_1.value == node_2.value:
             return True
         return False
@@ -67,7 +77,7 @@ def compare_ast(node_1: Node, node_2: Node) -> bool:  # type: ignore[return]
         return False
 
 
-node_1 =  BinOp(  # node representing the function 3*x**2+5
+node_1 = BinOp(  # node representing the function 3*x**2+5
             BinOp(
                 left=Num(Token(INTEGER, 3)),
                 op=Token(MUL, '*'),
@@ -81,7 +91,7 @@ node_1 =  BinOp(  # node representing the function 3*x**2+5
             right=Num(Token(INTEGER, 5))
         )
 
-node_2 =  BinOp(  # node representing the function x**(1/2)*y
+node_2 = BinOp(  # node representing the function x**(1/2)*y
             BinOp(
                 left=Var(Token(VAR, 'x')),
                 op=Token(POW, '**'),
@@ -95,7 +105,7 @@ node_2 =  BinOp(  # node representing the function x**(1/2)*y
             right=Var(Token(VAR, 'y'))
         )
 
-node_3 =  BinOp(  # node representing the function log(x**2)/(x+y)
+node_3 = BinOp(  # node representing the function log(x**2)/(x+y)
             UnaryOp(
                 op=Token(FUNC, 'log'),
                 expr=BinOp(
@@ -115,8 +125,8 @@ node_3 =  BinOp(  # node representing the function log(x**2)/(x+y)
 
 def test_parser() -> None:
     '''
-    We get the return values resulting from calling our parser with 
-    different inputs and we compare them with our manually built ASTs 
+    We get the return values resulting from calling our parser with
+    different inputs and we compare them with our manually built ASTs
     containing the expected results
     '''
     assert compare_ast(get_parsed_expr('3*x**2+5'), node_1)
@@ -130,8 +140,8 @@ def test_interpreter() -> None:
     compare the string outputs with the expected results
     '''
     assert interpret_ast(node_1) == '3*x**2+5'
-    assert interpret_ast(node_2) ==  'x**(1/2)*y'
-    assert interpret_ast(node_3) ==  'log(x**2)/(x+y)'
+    assert interpret_ast(node_2) == 'x**(1/2)*y'
+    assert interpret_ast(node_3) == 'log(x**2)/(x+y)'
 
 
 @pytest.mark.parametrize("test_input,expected", [
