@@ -1,6 +1,6 @@
 import pytest
 import typing
-from derivative_calculator.tokenizer import Token, Tokenizer, VAR, INTEGER, PLUS, MUL, POW
+from derivative_calculator.tokenizer import Token, Tokenizer, VAR, INTEGER, PLUS, MUL, DIV, POW, FUNC
 from derivative_calculator.math_parser import Var, Num, BinOp, UnaryOp, Parser
 from derivative_calculator.interpreter import Interpreter
 from derivative_calculator.symb_diff_tool import deriv
@@ -42,15 +42,17 @@ def compare_ast(node_1: Node, node_2: Node) -> bool:  # type: ignore[return]
     '''
     if not (node_1 or node_2):
         return True
-
-    if isinstance(node_1, (Num, Var)) and isinstance(node_2, (Num, Var)):
-        if type(node_1) is type(node_2):
-            if node_1.value == node_2.value:
-                return True
-            return False
+    
+    if (node_1 and not node_2) or (not node_1 and node_2):
+        return False
+    
+    if type(node_1) is not type(node_2):
         return False
 
-    if (node_1 and not node_2) or (not node_1 and node_2):
+    if ((isinstance(node_1, Num) and isinstance(node_2, Num)) or
+        (isinstance(node_1, Var) and isinstance(node_2, Var))):
+        if node_1.value == node_2.value:
+            return True
         return False
 
     if isinstance(node_1, BinOp) and isinstance(node_2, BinOp):
@@ -65,41 +67,71 @@ def compare_ast(node_1: Node, node_2: Node) -> bool:  # type: ignore[return]
         return False
 
 
-pow_node = BinOp(
-    left=Var(Token(VAR, 'x')),
-    op=Token(POW, '**'),
-    right=Num(Token(INTEGER, 2))
-    )
+node_1 =  BinOp(  # node representing the function 3*x**2+5
+            BinOp(
+                left=Num(Token(INTEGER, 3)),
+                op=Token(MUL, '*'),
+                right=BinOp(
+                    left=Var(Token(VAR, 'x')),
+                    op=Token(POW, '**'),
+                    right=Num(Token(INTEGER, 2))
+                    )
+                ),
+            op=Token(PLUS, '+'),
+            right=Num(Token(INTEGER, 5))
+        )
 
-mul_node = BinOp(
-    left=Num(Token(INTEGER, 3)),
-    op=Token(MUL, '*'),
-    right=pow_node
-    )
+node_2 =  BinOp(  # node representing the function x**(1/2)*y
+            BinOp(
+                left=Var(Token(VAR, 'x')),
+                op=Token(POW, '**'),
+                right=BinOp(
+                    left=Num(Token(INTEGER, 1)),
+                    op=Token(DIV, '/'),
+                    right=Num(Token(INTEGER, 2))
+                    )
+                ),
+            op=Token(MUL, '*'),
+            right=Var(Token(VAR, 'y'))
+        )
 
-add_node = BinOp(
-    left=mul_node,
-    op=Token(PLUS, '+'),
-    right=Num(Token(INTEGER, 5))
-    )
+node_3 =  BinOp(  # node representing the function log(x**2)/(x+y)
+            UnaryOp(
+                op=Token(FUNC, 'log'),
+                expr=BinOp(
+                    left=Var(Token(VAR, 'x')),
+                    op=Token(POW, '**'),
+                    right=Num(Token(INTEGER, 2))
+                    )
+                ),
+            op=Token(DIV, '/'),
+            right=BinOp(
+                left=Var(Token(VAR, 'x')),
+                op=Token(PLUS, '+'),
+                right=Var(Token(VAR, 'y')),
+                )
+            )
 
 
 def test_parser() -> None:
     '''
-    We compare our manually built AST corresponding to the
-    function 3*x**2+5 with the result of calling our parser with
-    3*x**2+5 as argument
+    We get the return values resulting from calling our parser with 
+    different inputs and we compare them with our manually built ASTs 
+    containing the expected results
     '''
-    assert compare_ast(get_parsed_expr('3*x**2+5'), add_node)
+    assert compare_ast(get_parsed_expr('3*x**2+5'), node_1)
+    assert compare_ast(get_parsed_expr('x**(1/2)*y'), node_2)
+    assert compare_ast(get_parsed_expr('log(x**2)/(x+y)'), node_3)
 
 
 def test_interpreter() -> None:
     '''
-    Here we pass our manually built AST corresponding to the
-    function 3*x**2+5 to the interpreter and check if the result
-    is a string containing the function 3*x**2+5
+    Here we pass our manually built ASTs to the interpreter and
+    compare the string outputs with the expected results
     '''
-    assert interpret_ast(add_node) == '3*x**2+5'
+    assert interpret_ast(node_1) == '3*x**2+5'
+    assert interpret_ast(node_2) ==  'x**(1/2)*y'
+    assert interpret_ast(node_3) ==  'log(x**2)/(x+y)'
 
 
 @pytest.mark.parametrize("test_input,expected", [
@@ -109,6 +141,7 @@ def test_interpreter() -> None:
     (get_derivative('3*2*y', 'y'), '6'),
     (get_derivative('x*y', 'y'), 'x'),
     (get_derivative('sin(x)', 'x'), 'cos(x)'),
+    (get_derivative('x**(1/2)', 'x'), '(1/2)*x**((1/2)-1)'),
     (get_derivative('exp(x)', 'x'), 'exp(x)'),
     (get_derivative('log(x**2)', 'x'), '1/(x**2)*2*x'),
     (get_derivative('(1+x)*3**x', 'x'), '(1+x)*3**x*log(3)+3**x')
