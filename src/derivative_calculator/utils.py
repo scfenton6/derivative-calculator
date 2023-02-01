@@ -64,24 +64,23 @@ def is_pow(node: Node) -> bool:
 
 
 def simplifyPrefixSign(node: UnaryOp) -> typing.Union[Num, UnaryOp]:
-    op: str = node.op.type
-    minus_counter = 1 if op == MINUS else 0
-    node_child: Node = node.expr
-    while isinstance(node_child, UnaryOp):
-        if node_child.op.type == MINUS:
+    plus_token = Token(PLUS, '+')
+    minus_token = Token(MINUS, '-')
+    prefixes: tuple[str, str] = (plus_token.value, minus_token.value)
+    minus_counter = 0
+    while is_prefix_sign(node):
+        if node.op.type == MINUS:
             minus_counter += 1
-        node_child = node_child.expr
-    # at this point we know that node_child cannot be of the type UnaryOp
-    sign = '-' if minus_counter % 2 == 1 else '+'
-    # we return either a number or a prefix sign expression whose
-    # argument is not a prefix sign expression
-    if isinstance(node_child, Num):
-        if sign == '-':
-            return Num(Token(INTEGER, -1*node_child.value))
-        return Num(Token(INTEGER, node_child.value))
-    if sign == '-':
-        return UnaryOp(Token(MINUS, '-'), node_child)
-    return UnaryOp(Token(PLUS, '+'), node_child)
+        node = node.expr
+    # at this point we know that node cannot be prefix sign expression
+    sign = prefixes[minus_counter % 2]
+    if isinstance(node, Num):
+        prefix_sign = -1 if sign == '-' else 1
+        token_value: int = prefix_sign * node.value
+        return Num(Token(INTEGER, token_value))
+    else:
+        curr_token: Token = minus_token if sign == '-' else plus_token
+        return UnaryOp(curr_token, node)
 
 
 def make_sum(x: Node, y: Node) -> Node:

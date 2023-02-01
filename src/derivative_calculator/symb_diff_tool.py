@@ -31,7 +31,8 @@ def deriv(node: Node, var: Var) -> Node:
             simpl_node: UnaryOp | Num = utils.simplifyPrefixSign(node)
             if isinstance(simpl_node, Num):
                 return Num(Token(INTEGER, 0))
-            return UnaryOp(simpl_node.token, deriv(simpl_node.expr, var))
+            else:
+                return UnaryOp(simpl_node.token, deriv(simpl_node.expr, var))
 
         if utils.is_func(node):
             if node.value == 'exp':

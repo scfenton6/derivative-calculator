@@ -52,10 +52,10 @@ class Interpreter(NodeVisitor):
         left, right = node.left, node.right
 
         # simplify left and right nodes in case they are prefix sign expressions
-        if isinstance(left, UnaryOp) and left.op.type in (PLUS, MINUS):
+        if utils.is_prefix_sign(left):
             left = utils.simplifyPrefixSign(left)
 
-        if isinstance(right, UnaryOp) and right.op.type in (PLUS, MINUS):
+        if utils.is_prefix_sign(right):
             right = utils.simplifyPrefixSign(right)
 
         if utils.is_sum(node):
@@ -106,22 +106,18 @@ class Interpreter(NodeVisitor):
             return self.binOpHelper(node, '**', 3)
 
     def visit_UnaryOp(self, node: UnaryOp) -> str:  # type: ignore[return]
-        op = node.op.value
         if utils.is_prefix_sign(node):
-            simplified_node = utils.simplifyPrefixSign(node)
-            if isinstance(simplified_node, Num):
-                return str(simplified_node.value)
-            simpl_node_op = simplified_node.op.value
-            if simpl_node_op == '-':
-                if not isinstance(simplified_node, (UnaryOp, BinOp)):
-                    return r'-%s' % self.visit(simplified_node)
-                return r'-(%s)' % self.visit(simplified_node)
+            simpl_node: UnaryOp | Num = utils.simplifyPrefixSign(node)
+            if isinstance(simpl_node, Num):
+                return str(self.visit(simpl_node))
             else:
-                return str(self.visit(simplified_node))
-
+                sign = simpl_node.op.value
+                if isinstance(simpl_node, BinOp):
+                    return r'%s(%s)' % (sign, self.visit(simpl_node.expr))
+                else:
+                    return r'%s%s' % (sign, self.visit(simpl_node.expr))
         if utils.is_func(node):
-            # return function with argument enclosed in parentheses
-            return r'%s(%s)' % (op, self.visit(node.expr))
+            return r'%s(%s)' % (node.op.value, self.visit(node.expr))
 
     def visit_Num(self, node: Num) -> str:  # type: ignore[return]
         return str(node.value)
