@@ -30,13 +30,13 @@ class Interpreter(NodeVisitor):
         result = ''
         left, right = node.left, node.right
 
-        if (isinstance(left, (UnaryOp, BinOp)) and
-                self.prec[left.op.type] < prec):
+        if (utils.is_rational_number(left) or
+            (isinstance(left, (UnaryOp, BinOp)) and self.prec[left.op.type] < prec)):
             result += r'(%s)%s' % (self.visit(left), op)
         else:
             result += r'%s%s' % (self.visit(left), op)
-        if (isinstance(right, (UnaryOp, BinOp)) and
-                self.prec[right.op.type] < prec):
+        if (utils.is_rational_number(right) or
+            (isinstance(right, (UnaryOp, BinOp)) and self.prec[right.op.type] < prec)):
             result += r'(%s)' % self.visit(right)
         else:
             result += r'%s' % self.visit(right)
